@@ -1,0 +1,55 @@
+name: Flutter Update Checker
+
+run-name: Check Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  flutter-update-checker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+
+      - run: npm install
+
+      - id: flutter-update-checker
+        run: node index.js
+
+      - run: echo "${{ steps.flutter-update-checker.outputs.version }}"
+
+      - id: update-checker
+        run: |
+          if [ "${{ vars.FLUTTER_VERSION }}" != "${{ steps.flutter-update-checker.outputs.version }}" ] && [ -n "${{ steps.flutter-update-checker.outputs.version }}" ]; then
+            echo "updated=true" >> $GITHUB_OUTPUT
+          else
+            echo "updated=false" >> $GITHUB_OUTPUT
+          fi
+
+      - if: ${{ steps.update-checker.outputs.updated == 'true' }}
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+
+      - if: ${{ steps.update-checker.outputs.updated == 'true' }}
+        env:
+          GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          echo "Flutter version has changed!"
+          echo "Old version: ${{ vars.FLUTTER_VERSION }}"
+          echo "New version: ${{ steps.flutter-update-checker.outputs.version }}"
+          echo "Updating Flutter version..."
+          gh variable set FLUTTER_VERSION --body ${{ steps.flutter-update-checker.outputs.version }}
+
+      - if: ${{ steps.update-checker.outputs.updated == 'true' }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Flutter version updated to ${{ steps.flutter-update-checker.outputs.version }} https://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel"}' $SLACK_WEBHOOK_URL
