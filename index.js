@@ -12,7 +12,7 @@ async function getFlutterReleaseVersion() {
     const targetItem = feed.items.find(item => item.id?.includes(baseUrl));
 
     if (!targetItem) {
-      throw new Error('No entry found with the specified base URL.');
+      return null;
     }
 
     const versionPattern = new RegExp(`${versionBaseUrl.replace(/\//g, "\\/")}([0-9.]+)`);
