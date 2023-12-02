@@ -3,19 +3,19 @@ const parser = new Parser();
 const core = require('@actions/core');
 
 async function getFlutterReleaseVersion() {
-  const rssUrl = 'https://github.com/flutter/flutter/wiki.atom';
-  const baseUrl = 'https://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel';
-  const versionBaseUrl = 'https://github.com/flutter/flutter/releases/tag/';
+  const feedUrl = 'https://github.com/flutter/flutter/wiki.atom';
+  const hotfixesUrl = 'https://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel';
+  const githubUrl = 'https://github.com/flutter/flutter/releases/tag/';
 
   try {
-    const feed = await parser.parseURL(rssUrl);
-    const targetItem = feed.items.find(item => item.id?.includes(baseUrl));
+    const feed = await parser.parseURL(feedUrl);
+    const targetItem = feed.items.find(item => item.id?.includes(hotfixesUrl));
 
     if (!targetItem) {
       return null;
     }
 
-    const versionPattern = new RegExp(`${versionBaseUrl.replace(/\//g, "\\/")}([0-9.]+)`);
+    const versionPattern = new RegExp(`${githubUrl}([0-9.]+)`);
     const versionMatch = targetItem.content?.match(versionPattern);
 
     if (versionMatch) {
