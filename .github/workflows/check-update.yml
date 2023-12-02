@@ -31,14 +31,14 @@ jobs:
             echo "updated=false" >> $GITHUB_OUTPUT
           fi
 
-      - if: ${{ steps.update-checker.outputs.updated == 'true' }}
+      - if: steps.update-checker.outputs.updated == 'true'
         id: generate_token
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.PRIVATE_KEY }}
 
-      - if: ${{ steps.update-checker.outputs.updated == 'true' }}
+      - if: steps.update-checker.outputs.updated == 'true'
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
@@ -48,7 +48,7 @@ jobs:
           echo "Updating Flutter version..."
           gh variable set FLUTTER_VERSION --body ${{ steps.flutter-update-checker.outputs.version }}
 
-      - if: ${{ steps.update-checker.outputs.updated == 'true' }}
+      - if: steps.update-checker.outputs.updated == 'true'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
