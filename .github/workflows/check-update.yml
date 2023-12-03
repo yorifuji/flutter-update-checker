@@ -52,4 +52,4 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          curl -X POST -H 'Content-type: application/json' --data '{"text":"Flutter SDK ${{ steps.flutter-update-checker.outputs.version }} Released\nhttps://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel"}' $SLACK_WEBHOOK_URL
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"Flutter SDK ${{ steps.flutter-update-checker.outputs.version }} Released #Flutter \nhttps://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel"}' $SLACK_WEBHOOK_URL
