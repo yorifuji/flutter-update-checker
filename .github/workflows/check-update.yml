@@ -21,11 +21,11 @@ jobs:
       - id: flutter-update-checker
         run: node index.js
 
-      - run: echo "${{ steps.flutter-update-checker.outputs.version }}"
-
       - id: update-checker
+        env:
+          NEW_SDK_VERSION: "${{ steps.flutter-update-checker.outputs.version }}"
         run: |
-          if [ "${{ vars.FLUTTER_VERSION }}" != "${{ steps.flutter-update-checker.outputs.version }}" ] && [ -n "${{ steps.flutter-update-checker.outputs.version }}" ]; then
+          if [ "${{ vars.FLUTTER_VERSION }}" != "$NEW_SDK_VERSION" ] && [ -n "$NEW_SDK_VERSION" ]; then
             echo "updated=true" >> $GITHUB_OUTPUT
           else
             echo "updated=false" >> $GITHUB_OUTPUT
@@ -41,15 +41,17 @@ jobs:
       - if: steps.update-checker.outputs.updated == 'true'
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          NEW_SDK_VERSION: "${{ steps.flutter-update-checker.outputs.version }}"
         run: |
           echo "Flutter version has changed!"
           echo "Old version: ${{ vars.FLUTTER_VERSION }}"
-          echo "New version: ${{ steps.flutter-update-checker.outputs.version }}"
+          echo "New version: $NEW_SDK_VERSION"
           echo "Updating Flutter version..."
-          gh variable set FLUTTER_VERSION --body ${{ steps.flutter-update-checker.outputs.version }}
+          gh variable set FLUTTER_VERSION --body "$NEW_SDK_VERSION"
 
       - if: steps.update-checker.outputs.updated == 'true'
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          NEW_SDK_VERSION: "${{ steps.flutter-update-checker.outputs.version }}"
         run: |
-          curl -X POST -H 'Content-type: application/json' --data '{"text":"Flutter SDK ${{ steps.flutter-update-checker.outputs.version }} Released #Flutter \nhttps://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel"}' $SLACK_WEBHOOK_URL
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Flutter SDK $NEW_SDK_VERSION Released #Flutter\nhttps://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel\"}" $SLACK_WEBHOOK_URL
