@@ -15,8 +15,6 @@ async function getFlutterReleaseVersion() {
       return null;
     }
 
-    console.log('Target item:', targetItem)
-
     const versionPattern = new RegExp(`${githubUrl}([0-9.]+)`);
     const versionMatch = targetItem.content?.match(versionPattern);
 
