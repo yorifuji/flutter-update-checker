@@ -53,5 +53,6 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           NEW_SDK_VERSION: "${{ steps.flutter-update-checker.outputs.version }}"
+          NEW_VERSION_MAJOR_MINOR: "${{ steps.flutter-update-checker.outputs.versionWithoutDotsAndPatch }}"
         run: |
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Flutter SDK $NEW_SDK_VERSION Released #Flutter\nhttps://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel\"}" $SLACK_WEBHOOK_URL
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Flutter SDK $NEW_SDK_VERSION Released #Flutter\nhttps://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel#flutter-$NEW_VERSION_MAJOR_MINOR-changes\"}" $SLACK_WEBHOOK_URL

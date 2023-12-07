@@ -15,11 +15,16 @@ async function getFlutterReleaseVersion() {
       return null;
     }
 
+    console.log('Target item:', targetItem)
+
     const versionPattern = new RegExp(`${githubUrl}([0-9.]+)`);
     const versionMatch = targetItem.content?.match(versionPattern);
 
     if (versionMatch) {
-      return versionMatch[1];
+      return {
+        version: versionMatch[1],
+        versionWithoutDotsAndPatch: versionMatch[1].split('.').slice(0, 2).join('').replace(/\./g, '')
+      }
     } else {
       throw new Error('Version number not found.');
     }
@@ -30,8 +35,9 @@ async function getFlutterReleaseVersion() {
 }
 
 getFlutterReleaseVersion()
-  .then(version => {
-    core.setOutput('version', version || '');
+  .then(versionMatch => {
+    core.setOutput('version', versionMatch.version || '');
+    core.setOutput('versionWithoutDotsAndPatch', versionMatch.versionWithoutDotsAndPatch || '');
   })
   .catch(error => {
     core.setFailed(error.message);
