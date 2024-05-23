@@ -19,7 +19,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           sh get_latest_flutter_version.sh
-          version=$(cat version.txt)
+          version=$(cat tmp/version.txt)
           echo "version=$version" >> $GITHUB_OUTPUT
 
       - id: update-checker
