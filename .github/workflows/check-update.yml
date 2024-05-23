@@ -14,12 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-
-      - run: npm install
-
       - id: flutter-update-checker
-        run: node index.js
+        run: |
+          sh get_latest_flutter_version.sh
+          version=$(cat version.txt)
+          echo "version=$version" >> $GITHUB_OUTPUT
 
       - id: update-checker
         env:
@@ -53,6 +52,5 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           NEW_SDK_VERSION: "${{ steps.flutter-update-checker.outputs.version }}"
-          NEW_VERSION_MAJOR_MINOR: "${{ steps.flutter-update-checker.outputs.versionWithoutDotsAndPatch }}"
         run: |
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Flutter SDK $NEW_SDK_VERSION Released #Flutter\nhttps://github.com/flutter/flutter/wiki/Hotfixes-to-the-Stable-Channel#flutter-$NEW_VERSION_MAJOR_MINOR-changes\"}" $SLACK_WEBHOOK_URL
+          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Flutter SDK $NEW_SDK_VERSION Released #Flutter\nhttps://github.com/flutter/flutter/blob/master/docs/releases/Hotfixes-to-the-Stable-Channel.md\"}" $SLACK_WEBHOOK_URL
