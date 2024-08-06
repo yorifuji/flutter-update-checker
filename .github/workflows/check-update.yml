@@ -7,6 +7,9 @@ on:
   schedule:
     - cron: "0 23 * * *"
 
+env:
+  FLUTTER_CHANGELOG_URL: https://github.com/flutter/flutter/blob/main/CHANGELOG.md
+
 jobs:
   flutter-update-checker:
     runs-on: ubuntu-latest
@@ -54,5 +57,8 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           NEW_SDK_VERSION: "${{ steps.flutter-update-checker.outputs.version }}"
-        run: |
-          curl -X POST -H 'Content-type: application/json' --data "{\"text\":\"Flutter SDK $NEW_SDK_VERSION Released #Flutter\nhttps://github.com/flutter/flutter/blob/master/docs/releases/Hotfixes-to-the-Stable-Channel.md\"}" $SLACK_WEBHOOK_URL
+        run: >-
+          curl -X POST
+            -H 'Content-type: application/json'
+            --data "{\"text\":\"Flutter SDK $NEW_SDK_VERSION Released #Flutter\n${FLUTTER_CHANGELOG_URL}\"}"
+            $SLACK_WEBHOOK_URL
